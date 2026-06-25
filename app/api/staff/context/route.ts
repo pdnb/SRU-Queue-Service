@@ -15,7 +15,7 @@ export async function GET(request: Request) {
 
     if (!counterId) {
       return NextResponse.json(
-        { error: { code: "NO_COUNTER", message: "กรุณาเลือกช่องบริการ" } },
+        { error: { code: "NO_COUNTER", message: "กรุณาเลือกเคาน์เตอร์ก่อน" } },
         { status: 400 },
       );
     }
@@ -36,7 +36,7 @@ export async function PATCH(request: Request) {
     const counterId = body.counterId as string | undefined;
     if (!counterId) {
       return NextResponse.json(
-        { error: { code: "VALIDATION_ERROR", message: "กรุณาเลือกช่องบริการ" } },
+        { error: { code: "VALIDATION_ERROR", message: "กรุณาเลือกเคาน์เตอร์ก่อน" } },
         { status: 400 },
       );
     }

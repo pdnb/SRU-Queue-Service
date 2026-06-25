@@ -99,8 +99,8 @@ export default function AdminDashboardPage() {
           variant="outline"
           className="h-auto cursor-pointer flex-col items-start gap-1 py-5 text-left"
         >
-          <span className="font-semibold">จัดการช่องบริการ</span>
-          <span className="text-xs font-normal text-muted-foreground">กำหนดช่องและบริการ</span>
+          <span className="font-semibold">จัดการเคาน์เตอร์</span>
+          <span className="text-xs font-normal text-muted-foreground">กำหนดเคาน์เตอร์และบริการ</span>
         </ButtonLink>
         <ButtonLink
           href="/admin/users"

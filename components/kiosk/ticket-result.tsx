@@ -34,6 +34,17 @@ export function TicketResult({
     setTicketUrl(getTicketUrl(ticketId, window.location.origin));
   }, [ticketId]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        onReset();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onReset]);
+
   return (
     <Card className="mx-auto w-full max-w-4xl border-cta/25">
       <CardHeader className="text-center">
@@ -75,7 +86,7 @@ export function TicketResult({
           type="button"
           variant="cta"
           size="lg"
-          className="w-full cursor-pointer text-lg"
+          className="w-full cursor-pointer text-lg h-10"
           onClick={onReset}
         >
           รับคิวใหม่

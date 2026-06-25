@@ -6,11 +6,8 @@ export default function HomePage() {
     <div className="page-surface">
       <header className="border-b bg-brand text-brand-foreground">
         <div className="mx-auto max-w-5xl px-4 py-12 text-center sm:py-16">
-          <p className="text-sm font-medium tracking-wide text-white/70 uppercase">
-            ระบบบริการนักศึกษา
-          </p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-            ระบบรันคิวให้บริการนักศึกษา
+            ระบบจัดการคิวบริการศูนย์คอมพิวเตอร์
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base text-white/80 sm:text-lg">
             เลือกหน้าจอที่ต้องการใช้งาน — รับคิว เรียกคิว แสดงผล หรือจัดการระบบ
@@ -37,14 +34,14 @@ export default function HomePage() {
           <PortalCard
             href="/staff"
             title="เจ้าหน้าที่ (Staff)"
-            description="เรียกคิวถัดไป อัปเดตสถานะ และจัดการคิวประจำช่อง"
+            description="เรียกคิวถัดไป อัปเดตสถานะ และจัดการคิวประจำเคาน์เตอร์"
             icon={UserCheck}
             accent="brand"
           />
           <PortalCard
             href="/admin"
             title="แอดมิน (Admin)"
-            description="จัดการบริการ ช่องบริการ เจ้าหน้าที่ และดูรายงาน"
+            description="จัดการบริการ เคาน์เตอร์ เจ้าหน้าที่ และดูรายงาน"
             icon={Settings}
             accent="muted"
           />
@@ -52,7 +49,7 @@ export default function HomePage() {
       </main>
 
       <footer className="border-t py-6 text-center text-sm text-muted-foreground">
-        Queue Service · ระบบจัดการคิวบริการนักศึกษา
+        ระบบจัดการคิวบริการศูนย์คอมพิวเตอร์ มหาวิทยาลัยราชภัฏสุราษฎร์ธานี
       </footer>
     </div>
   );

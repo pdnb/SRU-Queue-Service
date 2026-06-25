@@ -80,12 +80,12 @@ export default function AdminCountersPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>เพิ่มช่องบริการ</CardTitle>
+          <CardTitle>เพิ่มเคาน์เตอร์</CardTitle>
         </CardHeader>
         <CardContent>
           <form className="grid gap-4 md:grid-cols-3" onSubmit={createCounter}>
             <div className="space-y-2">
-              <Label>ชื่อช่อง</Label>
+              <Label>ชื่อเคาน์เตอร์</Label>
               <Input value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
             <div className="space-y-2">
@@ -104,7 +104,7 @@ export default function AdminCountersPage() {
               </Select>
             </div>
             <div className="flex items-end">
-              <Button type="submit" className="h-10">เพิ่มช่อง</Button>
+              <Button type="submit" className="h-10">เพิ่มเคาน์เตอร์</Button>
             </div>
           </form>
         </CardContent>
@@ -112,13 +112,13 @@ export default function AdminCountersPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>รายการช่องบริการ</CardTitle>
+          <CardTitle>รายการเคาน์เตอร์</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ช่อง</TableHead>
+                <TableHead>เคาน์เตอร์</TableHead>
                 <TableHead>บริการ</TableHead>
                 <TableHead>เจ้าหน้าที่</TableHead>
                 <TableHead>สถานะ</TableHead>

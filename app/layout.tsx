@@ -10,8 +10,8 @@ const anuphan = Anuphan({
 });
 
 export const metadata: Metadata = {
-  title: "ระบบรันคิวให้บริการนักศึกษา",
-  description: "ระบบจัดการคิวบริการนักศึกษา",
+  title: "ระบบจัดการคิวบริการศูนย์คอมพิวเตอร์ มหาวิทยาลัยราชภัฏสุราษฎร์ธานี",
+  description: "ระบบจัดการคิวบริการศูนย์คอมพิวเตอร์ มหาวิทยาลัยราชภัฏสุราษฎร์ธานี",
 };
 
 export default function RootLayout({

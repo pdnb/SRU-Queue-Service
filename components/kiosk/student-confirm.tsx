@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +22,21 @@ export function StudentConfirm({
   onBack,
   loading,
 }: StudentConfirmProps) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (loading) return;
+      if (e.key === "Enter") {
+        e.preventDefault();
+        onConfirm();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        onBack();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onConfirm, onBack, loading]);
+
   return (
     <Card className="mx-auto w-full max-w-xl border-cta/20">
       <CardHeader className="text-center">
@@ -46,7 +62,7 @@ export function StudentConfirm({
             type="button"
             variant="outline"
             size="lg"
-            className="flex-1 cursor-pointer text-lg"
+            className="flex-1 cursor-pointer text-lg h-10"
             onClick={onBack}
             disabled={loading}
           >
@@ -56,7 +72,7 @@ export function StudentConfirm({
             type="button"
             variant="cta"
             size="lg"
-            className="flex-1 cursor-pointer text-lg"
+            className="flex-1 cursor-pointer text-lg h-10"
             onClick={onConfirm}
             disabled={loading}
           >

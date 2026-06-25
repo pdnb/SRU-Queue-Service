@@ -61,9 +61,10 @@ model QueueTicket {
   id          String       @id @default(cuid())
   number      Int
   displayNo   String
-  studentId   String
-  studentName String
-  serviceId   String
+  studentId       String
+  studentName     String
+  studentPicture  String?
+  serviceId       String
   service     Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   counterId   String?
   counter     Counter?     @relation(fields: [counterId], references: [id], onDelete: SetNull)

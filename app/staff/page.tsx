@@ -6,6 +6,7 @@ import { Megaphone } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { EmptyState } from "@/components/empty-state";
 import { QueueNumberPanel } from "@/components/queue-number-panel";
+import { StudentPhoto } from "@/components/student-photo";
 import { StatusBadge } from "@/components/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ interface Ticket {
   displayNo: string;
   studentId: string;
   studentName: string;
+  studentPicture?: string | null;
   status: string;
 }
 
@@ -83,7 +85,7 @@ export default function StaffPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ counterId: selectedCounterId }),
     });
-    setMessage("บันทึกช่องบริการแล้ว");
+    setMessage("ตั้งค่าเคาน์เตอร์เรียบร้อยแล้ว");
   };
 
   const callNext = async () => {
@@ -138,17 +140,17 @@ export default function StaffPage() {
       <main className="page-main grid gap-6 lg:grid-cols-[300px_1fr]">
         <Card>
           <CardHeader>
-            <CardTitle>ช่องบริการ</CardTitle>
+            <CardTitle>เคาน์เตอร์ของฉัน</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="counter">เลือกช่อง</Label>
+              <Label htmlFor="counter">เลือกเคาน์เตอร์ที่คุณให้บริการ</Label>
               <Select
                 id="counter"
                 value={selectedCounterId}
                 onChange={(e) => setSelectedCounterId(e.target.value)}
               >
-                <option value="">-- เลือกช่องบริการ --</option>
+                <option value="">-- เลือกเคาน์เตอร์ --</option>
                 {counters.map((counter) => (
                   <option key={counter.id} value={counter.id}>
                     {counter.name} ({counter.service.name})
@@ -161,7 +163,7 @@ export default function StaffPage() {
               variant="outline"
               onClick={assignCounter}
             >
-              บันทึกช่องบริการ
+              ยืนยันเคาน์เตอร์
             </Button>
             {message && (
               <p role="status" className="text-sm text-muted-foreground">
@@ -179,24 +181,35 @@ export default function StaffPage() {
             <CardContent className="space-y-6 pt-6">
               {context?.currentTicket ? (
                 <>
-                  <QueueNumberPanel displayNo={context.currentTicket.displayNo} size="md">
-                    <p className="mt-4 text-2xl font-semibold">
-                      {context.currentTicket.studentName}
-                    </p>
-                    <p className="mt-1 text-white/70">
-                      รหัส {context.currentTicket.studentId}
-                    </p>
-                    <StatusBadge
-                      status={context.currentTicket.status as TicketStatus}
-                      appearance="onBrand"
-                      className="mt-3"
+                  <div className="grid gap-5 sm:grid-cols-[auto_1fr]">
+                    <StudentPhoto
+                      src={context.currentTicket.studentPicture}
+                      alt={context.currentTicket.studentName}
+                      size="fill"
                     />
-                  </QueueNumberPanel>
+                    <QueueNumberPanel
+                      displayNo={context.currentTicket.displayNo}
+                      size="sm"
+                      className="flex h-full w-full min-h-52 flex-col justify-center sm:min-h-60"
+                    >
+                      <p className="mt-4 text-2xl font-semibold">
+                        {context.currentTicket.studentName}
+                      </p>
+                      <p className="mt-1 text-white/70">
+                        รหัส {context.currentTicket.studentId}
+                      </p>
+                      <StatusBadge
+                        status={context.currentTicket.status as TicketStatus}
+                        appearance="onBrand"
+                        className="mt-3 self-center"
+                      />
+                    </QueueNumberPanel>
+                  </div>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <Button
                       size="lg"
                       variant="cta"
-                      className="cursor-pointer"
+                      className="cursor-pointer h-10"
                       disabled={loading}
                       onClick={() => updateStatus("SERVING")}
                     >
@@ -205,7 +218,7 @@ export default function StaffPage() {
                     <Button
                       size="lg"
                       variant="success"
-                      className="cursor-pointer"
+                      className="cursor-pointer h-10"
                       disabled={loading}
                       onClick={() => updateStatus("COMPLETED")}
                     >
@@ -214,7 +227,7 @@ export default function StaffPage() {
                     <Button
                       size="lg"
                       variant="outline"
-                      className="cursor-pointer"
+                      className="cursor-pointer h-10"
                       disabled={loading}
                       onClick={() => updateStatus("SKIPPED")}
                     >
@@ -223,7 +236,7 @@ export default function StaffPage() {
                     <Button
                       size="lg"
                       variant="outline"
-                      className="cursor-pointer"
+                      className="cursor-pointer h-10"
                       disabled={loading}
                       onClick={() => updateStatus("NO_SHOW")}
                     >
@@ -237,7 +250,7 @@ export default function StaffPage() {
               <Button
                 size="lg"
                 variant="cta"
-                className="w-full cursor-pointer text-lg"
+                className="w-full cursor-pointer text-lg h-10"
                 disabled={loading || !selectedCounterId}
                 onClick={callNext}
               >

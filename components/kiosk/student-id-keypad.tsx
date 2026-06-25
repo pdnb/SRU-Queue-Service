@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { Delete } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,8 @@ export function StudentIdKeypad({
   loading,
   error,
 }: StudentIdKeypadProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const handleKey = (key: string) => {
     if (key === "ลบ") {
       onChange(value.slice(0, -1));
@@ -32,18 +35,40 @@ export function StudentIdKeypad({
     }
     if (value.length >= 13) return;
     onChange(value + key);
+    inputRef.current?.focus();
   };
 
   return (
     <div className="mx-auto w-full max-w-md space-y-6">
       <div className="surface-card px-6 py-8 text-center">
-        <p className="mb-2 text-sm font-medium text-muted-foreground">รหัสนักศึกษา</p>
-        <p
-          className="min-h-14 text-4xl font-bold tracking-[0.2em] text-brand tabular-nums"
+        <label htmlFor="student-id-input" className="mb-2 block text-sm font-medium text-muted-foreground">
+          รหัสนักศึกษา
+        </label>
+        <input
+          ref={inputRef}
+          id="student-id-input"
+          type="text"
+          inputMode="numeric"
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+          autoFocus
+          value={value}
+          placeholder="—"
+          disabled={loading}
           aria-live="polite"
-        >
-          {value || "—"}
-        </p>
+          onChange={(e) => {
+            const digits = e.target.value.replace(/\D/g, "").slice(0, 13);
+            onChange(digits);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              onSubmit();
+            }
+          }}
+          className="min-h-14 w-full border-0 bg-transparent text-center text-4xl font-bold tracking-[0.2em] text-brand tabular-nums outline-none placeholder:text-brand/30 focus:ring-0 disabled:opacity-50"
+        />
       </div>
 
       {error && <p role="alert" className="alert-error">{error}</p>}

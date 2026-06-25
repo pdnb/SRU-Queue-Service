@@ -120,7 +120,7 @@ export default function AdminUsersPage() {
               </Select>
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label>ช่องบริการ (ถ้ามี)</Label>
+              <Label>เคาน์เตอร์ประจำ (ถ้ามี)</Label>
               <Select
                 value={counterId}
                 onChange={(e) => setCounterId(e.target.value)}

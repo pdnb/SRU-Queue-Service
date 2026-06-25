@@ -43,9 +43,6 @@ export function PortalCard({
         <h2 className="text-lg font-semibold text-foreground">{title}</h2>
         <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
       </div>
-      <span className="mt-auto text-sm font-medium text-cta transition-colors duration-200 group-hover:text-cta/80">
-        เปิดหน้านี้ →
-      </span>
     </Link>
   );
 }

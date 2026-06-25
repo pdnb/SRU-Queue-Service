@@ -3,12 +3,13 @@ import { cn } from "@/lib/utils";
 interface QueueNumberPanelProps {
   label?: string;
   displayNo: string;
-  size?: "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl";
   className?: string;
   children?: React.ReactNode;
 }
 
 const sizeStyles = {
+  sm: "text-4xl sm:text-5xl",
   md: "text-6xl sm:text-7xl",
   lg: "text-7xl sm:text-8xl",
   xl: "text-7xl sm:text-8xl display-pulse",

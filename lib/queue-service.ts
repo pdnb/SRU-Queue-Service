@@ -94,6 +94,7 @@ export async function createTicket(serviceId: string, studentId: string) {
         displayNo,
         studentId: student.studentId,
         studentName: student.fullName,
+        studentPicture: student.picture || null,
         serviceId,
         queueDate,
         status: TicketStatus.WAITING,
@@ -171,12 +172,12 @@ export async function callNext(counterId: string, staffUserId?: string) {
   });
 
   if (!counter) {
-    throw new QueueError("ไม่พบช่องบริการ", "COUNTER_NOT_FOUND", 404);
+    throw new QueueError("ไม่พบเคาน์เตอร์นี้", "COUNTER_NOT_FOUND", 404);
   }
 
   if (staffUserId && counter.staff && counter.staff.id !== staffUserId) {
     throw new QueueError(
-      "ช่องบริการนี้ถูกใช้งานโดยเจ้าหน้าที่คนอื่น",
+      "เคาน์เตอร์นี้มีเจ้าหน้าที่อื่นอยู่แล้ว",
       "COUNTER_IN_USE",
       403,
     );
@@ -309,6 +310,19 @@ export async function getQueueState() {
   };
 }
 
+async function withStudentPicture<T extends { studentId: string; studentPicture: string | null }>(
+  ticket: T | null,
+): Promise<T | null> {
+  if (!ticket || ticket.studentPicture) return ticket;
+
+  try {
+    const student = await sisClient.lookupStudent(ticket.studentId);
+    return { ...ticket, studentPicture: student?.picture ?? null };
+  } catch {
+    return ticket;
+  }
+}
+
 export async function getStaffQueueContext(counterId: string) {
   const queueDate = getQueueDate();
   const counter = await prisma.counter.findUnique({
@@ -317,10 +331,10 @@ export async function getStaffQueueContext(counterId: string) {
   });
 
   if (!counter) {
-    throw new QueueError("ไม่พบช่องบริการ", "COUNTER_NOT_FOUND", 404);
+    throw new QueueError("ไม่พบเคาน์เตอร์นี้", "COUNTER_NOT_FOUND", 404);
   }
 
-  const [currentTicket, waitingTickets] = await Promise.all([
+  const [rawCurrentTicket, waitingTickets] = await Promise.all([
     prisma.queueTicket.findFirst({
       where: {
         counterId,
@@ -341,6 +355,8 @@ export async function getStaffQueueContext(counterId: string) {
       take: 3,
     }),
   ]);
+
+  const currentTicket = await withStudentPicture(rawCurrentTicket);
 
   return { counter, currentTicket, waitingTickets };
 }

@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 const links = [
   { href: "/admin", label: "ภาพรวม", icon: BarChart3, exact: true },
   { href: "/admin/services", label: "บริการ", icon: LayoutGrid },
-  { href: "/admin/counters", label: "ช่องบริการ", icon: Building2 },
+  { href: "/admin/counters", label: "เคาน์เตอร์", icon: Building2 },
   { href: "/admin/users", label: "เจ้าหน้าที่", icon: Users },
 ];
 

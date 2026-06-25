@@ -57,6 +57,7 @@ export default function DisplayPage() {
         subtitle="กรุณารอฟังเรียกเลขคิวของท่าน"
         variant="brand"
         layout="centered"
+        fullWidth
         showBackLink={false}
         trailing={
           time ? (
@@ -67,7 +68,7 @@ export default function DisplayPage() {
         }
       />
 
-      <main className="page-main grid max-w-7xl gap-8 lg:grid-cols-[2fr_1fr]">
+      <main className="grid w-full gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[3fr_1fr] lg:px-8">
         <section aria-labelledby="calling-heading">
           <h2
             id="calling-heading"
@@ -76,7 +77,7 @@ export default function DisplayPage() {
             <span className="size-2.5 animate-pulse rounded-full bg-warning" aria-hidden />
             กำลังเรียก
           </h2>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-3">
             {state?.counters.map((counter) => (
               <article
                 key={counter.id}

@@ -17,6 +17,7 @@ interface AppHeaderProps {
   backHref?: string;
   backLabel?: string;
   showBackLink?: boolean;
+  fullWidth?: boolean;
   trailing?: React.ReactNode;
 }
 
@@ -30,6 +31,7 @@ export function AppHeader({
   backHref = "/",
   backLabel = "กลับหน้าแรก",
   showBackLink = true,
+  fullWidth = false,
   trailing,
 }: AppHeaderProps) {
   const isBrand = variant === "brand";
@@ -43,7 +45,7 @@ export function AppHeader({
             : "border-b bg-card/90 px-4 py-6 text-center backdrop-blur-sm sm:py-8"
         }
       >
-        <div className="relative mx-auto max-w-7xl">
+        <div className={cn("relative w-full", !fullWidth && "mx-auto max-w-7xl")}>
           {trailing && (
             <div className="absolute top-0 right-0 hidden sm:block">{trailing}</div>
           )}

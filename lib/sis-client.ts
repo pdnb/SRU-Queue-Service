@@ -1,8 +1,10 @@
 export interface SisStudent {
   studentId: string;
+  prefix: string;
   firstName: string;
   lastName: string;
   fullName: string;
+  picture: string;
 }
 
 export interface SisClient {
@@ -12,21 +14,27 @@ export interface SisClient {
 const MOCK_STUDENTS: Record<string, SisStudent> = {
   "64010001": {
     studentId: "64010001",
+    prefix: "นาย",
     firstName: "สมชาย",
     lastName: "ใจดี",
     fullName: "สมชาย ใจดี",
+    picture: "https://i.pravatar.cc/300",
   },
   "64010002": {
     studentId: "64010002",
+    prefix: "นางสาว",
     firstName: "สมหญิง",
     lastName: "รักเรียน",
     fullName: "สมหญิง รักเรียน",
+    picture: "https://i.pravatar.cc/300",
   },
   "64010003": {
-    studentId: "64010003",
+    studentId: "64010003",   
+    prefix: "นาย", 
     firstName: "วิชัย",
     lastName: "เก่งมาก",
     fullName: "วิชัย เก่งมาก",
+    picture: "https://i.pravatar.cc/300",
   },
 };
 
@@ -72,7 +80,7 @@ class HttpSisClient implements SisClient {
     if (cached) return cached;
 
     const response = await fetch(
-      `${this.baseUrl}/students/${encodeURIComponent(studentId)}`,
+      `${this.baseUrl}/get_user/${encodeURIComponent(studentId)}?api_token=${this.apiKey}`,
       {
         headers: {
           Authorization: `Bearer ${this.apiKey}`,
@@ -88,19 +96,23 @@ class HttpSisClient implements SisClient {
     }
 
     const data = (await response.json()) as {
-      studentId?: string;
-      firstName?: string;
-      lastName?: string;
+      code?: string;
+      prefix_th?: string;
+      first_name_th?: string;
+      last_name_th?: string;
       fullName?: string;
+      picture?: string;
     };
 
     const student: SisStudent = {
-      studentId: data.studentId ?? studentId,
-      firstName: data.firstName ?? "",
-      lastName: data.lastName ?? "",
+      studentId: data.code ?? studentId,
+      prefix: data.prefix_th ?? "",
+      firstName: data.first_name_th ?? "",
+      lastName: data.last_name_th ?? "",
       fullName:
         data.fullName ??
-        `${data.firstName ?? ""} ${data.lastName ?? ""}`.trim(),
+        `${data.prefix_th ?? ""}${data.first_name_th ?? ""} ${data.last_name_th ?? ""}`.trim(),
+      picture: data.picture ?? "",
     };
 
     setCache(student);

@@ -11,7 +11,7 @@ export const createTicketSchema = z.object({
 });
 
 export const callNextSchema = z.object({
-  counterId: z.string().min(1, "กรุณาเลือกช่องบริการ"),
+  counterId: z.string().min(1, "กรุณาเลือกเคาน์เตอร์"),
 });
 
 export const updateTicketSchema = z.object({
@@ -35,7 +35,7 @@ export const serviceSchema = z.object({
 });
 
 export const counterSchema = z.object({
-  name: z.string().min(1, "กรุณากรอกชื่อช่องบริการ"),
+  name: z.string().min(1, "กรุณากรอกชื่อเคาน์เตอร์"),
   serviceId: z.string().min(1, "กรุณาเลือกบริการ"),
   isActive: z.boolean().optional(),
 });

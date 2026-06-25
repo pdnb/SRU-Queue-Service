@@ -37,15 +37,15 @@ async function main() {
   });
 
   const counterA1 = await prisma.counter.create({
-    data: { name: "ช่อง 1", serviceId: registration.id },
+    data: { name: "เคาน์เตอร์ 1", serviceId: registration.id },
   });
 
   const counterB1 = await prisma.counter.create({
-    data: { name: "ช่อง 1", serviceId: finance.id },
+    data: { name: "เคาน์เตอร์ 1", serviceId: finance.id },
   });
 
   const counterC1 = await prisma.counter.create({
-    data: { name: "ช่อง 1", serviceId: advising.id },
+    data: { name: "เคาน์เตอร์ 1", serviceId: advising.id },
   });
 
   await prisma.user.create({
