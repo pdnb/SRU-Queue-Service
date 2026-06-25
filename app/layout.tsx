@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Anuphan } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { APP_DESCRIPTION, APP_TITLE } from "@/lib/branding";
 import "./globals.css";
 
 const anuphan = Anuphan({
@@ -10,8 +11,8 @@ const anuphan = Anuphan({
 });
 
 export const metadata: Metadata = {
-  title: "ระบบจัดการคิวบริการศูนย์คอมพิวเตอร์ มหาวิทยาลัยราชภัฏสุราษฎร์ธานี",
-  description: "ระบบจัดการคิวบริการศูนย์คอมพิวเตอร์ มหาวิทยาลัยราชภัฏสุราษฎร์ธานี",
+  title: APP_TITLE,
+  description: APP_DESCRIPTION,
 };
 
 export default function RootLayout({

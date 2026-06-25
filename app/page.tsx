@@ -1,5 +1,6 @@
 import { Monitor, Settings, Tv, UserCheck } from "lucide-react";
 import { PortalCard } from "@/components/portal-card";
+import { APP_NAME, APP_TAGLINE, ORGANIZATION } from "@/lib/branding";
 
 export default function HomePage() {
   return (
@@ -7,10 +8,10 @@ export default function HomePage() {
       <header className="border-b bg-brand text-brand-foreground">
         <div className="mx-auto max-w-5xl px-4 py-12 text-center sm:py-16">
           <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-            ระบบจัดการคิวบริการศูนย์คอมพิวเตอร์
+            {APP_NAME}
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base text-white/80 sm:text-lg">
-            เลือกหน้าจอที่ต้องการใช้งาน — รับคิว เรียกคิว แสดงผล หรือจัดการระบบ
+            {APP_TAGLINE} — เลือกหน้าจอที่ต้องการใช้งาน
           </p>
         </div>
       </header>
@@ -49,7 +50,7 @@ export default function HomePage() {
       </main>
 
       <footer className="border-t py-6 text-center text-sm text-muted-foreground">
-        ระบบจัดการคิวบริการศูนย์คอมพิวเตอร์ มหาวิทยาลัยราชภัฏสุราษฎร์ธานี
+        {APP_NAME} · {ORGANIZATION}
       </footer>
     </div>
   );

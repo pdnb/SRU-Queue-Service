@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { APP_NAME } from "@/lib/branding";
 
 export function LoginForm() {
   const router = useRouter();
@@ -44,7 +45,7 @@ export function LoginForm() {
   return (
     <div className="page-surface flex min-h-screen flex-col">
       <AppHeader
-        title="ระบบรันคิวให้บริการนักศึกษา"
+        title={APP_NAME}
         subtitle="เข้าสู่ระบบเจ้าหน้าที่และผู้ดูแล"
         variant="brand"
         layout="centered"

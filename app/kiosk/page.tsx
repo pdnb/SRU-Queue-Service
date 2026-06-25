@@ -9,6 +9,7 @@ import { StudentIdKeypad } from "@/components/kiosk/student-id-keypad";
 import { TicketResult } from "@/components/kiosk/ticket-result";
 import { Button } from "@/components/ui/button";
 import { useQueueUpdates } from "@/hooks/use-queue-updates";
+import { APP_NAME } from "@/lib/branding";
 
 type Step = "service" | "studentId" | "confirm" | "result";
 
@@ -127,8 +128,8 @@ export default function KioskPage() {
   return (
     <div className="page-surface">
       <AppHeader
-        title="รับคิวบริการนักศึกษา"
-        subtitle="กรุณาเลือกบริการและกรอกรหัสนักศึกษา"
+        title="รับคิว"
+        subtitle={APP_NAME}
         variant="brand"
       />
       <main className="page-main">

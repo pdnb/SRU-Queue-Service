@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AppHeader } from "@/components/app-header";
 import { useQueueUpdates } from "@/hooks/use-queue-updates";
+import { APP_NAME } from "@/lib/branding";
 import { cn } from "@/lib/utils";
 
 interface QueueState {
@@ -53,7 +54,7 @@ export default function DisplayPage() {
   return (
     <div className="display-surface">
       <AppHeader
-        title="ระบบเรียกคิวบริการนักศึกษา"
+        title={APP_NAME}
         subtitle="กรุณารอฟังเรียกเลขคิวของท่าน"
         variant="brand"
         layout="centered"

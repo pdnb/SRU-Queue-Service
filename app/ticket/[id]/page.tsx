@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { TicketStatusView } from "@/components/ticket/ticket-status-view";
 import { useQueueUpdates } from "@/hooks/use-queue-updates";
+import { APP_NAME } from "@/lib/branding";
 import type { TicketStatusData } from "@/lib/ticket-status";
 
 type PageState =
@@ -58,11 +59,11 @@ export default function TicketPage() {
   return (
     <div className="page-surface min-h-screen">
       <AppHeader
-        title="ติดตามคิวบริการนักศึกษา"
-        subtitle="ระบบรันคิวให้บริการนักศึกษา"
+        title="ติดตามคิว"
+        subtitle={APP_NAME}
         variant="brand"
         layout="centered"
-        backLabel="ระบบรันคิวให้บริการนักศึกษา"
+        backLabel={APP_NAME}
       />
       <main className="page-main max-w-lg">
         {state.kind === "loading" && (
