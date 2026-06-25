@@ -1,0 +1,45 @@
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-rootpassword}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-queue_service}
+      MARIADB_USER: ${MARIADB_USER:-queue}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-queuepassword}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      DATABASE_URL: mysql://${MARIADB_USER:-queue}:${MARIADB_PASSWORD:-queuepassword}@db:3306/${MARIADB_DATABASE:-queue_service}
+      AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET in .env}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      SIS_MOCK: ${SIS_MOCK:-true}
+      SIS_API_URL: ${SIS_API_URL:-}
+      SIS_API_KEY: ${SIS_API_KEY:-}
+      PUSHER_APP_ID: ${PUSHER_APP_ID:-}
+      PUSHER_KEY: ${PUSHER_KEY:-}
+      PUSHER_SECRET: ${PUSHER_SECRET:-}
+      PUSHER_CLUSTER: ${PUSHER_CLUSTER:-}
+      NEXT_PUBLIC_PUSHER_KEY: ${NEXT_PUBLIC_PUSHER_KEY:-}
+      NEXT_PUBLIC_PUSHER_CLUSTER: ${NEXT_PUBLIC_PUSHER_CLUSTER:-}
+      RUN_DB_SEED: ${RUN_DB_SEED:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
