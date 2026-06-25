@@ -63,7 +63,7 @@ export default function TicketPage() {
         subtitle={APP_NAME}
         variant="brand"
         layout="centered"
-        backLabel={APP_NAME}
+        showBackLink={false}
       />
       <main className="page-main max-w-lg">
         {state.kind === "loading" && (
