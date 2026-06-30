@@ -86,7 +86,7 @@ export function LoginForm({ ssoEnabled }: LoginFormProps) {
                   disabled={ssoLoading || loading}
                   onClick={handleSsoSignIn}
                 >
-                  {ssoLoading ? "กำลังเปลี่ยนเส้นทาง..." : "เข้าสู่ระบบด้วย SSO"}
+                  {ssoLoading ? "กำลังเปลี่ยนเส้นทาง..." : "เข้าสู่ระบบด้วยบัญชีมหาวิทยาลัย"}
                 </Button>
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
