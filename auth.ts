@@ -11,6 +11,8 @@ import {
 } from "@/lib/sso-user";
 import { loginSchema } from "@/lib/validations";
 
+const OIDC_SCOPES: string = '';
+
 const oidcProvider = isSsoConfigured()
   ? {
       id: OIDC_PROVIDER_ID,
@@ -19,6 +21,7 @@ const oidcProvider = isSsoConfigured()
       issuer: process.env.AUTH_OIDC_ISSUER!,
       clientId: process.env.AUTH_OIDC_CLIENT_ID!,
       clientSecret: process.env.AUTH_OIDC_CLIENT_SECRET!,
+      authorization: { params: { scope: OIDC_SCOPES } },
     }
   : null;
 
