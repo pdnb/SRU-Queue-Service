@@ -26,6 +26,11 @@ services:
     environment:
       DATABASE_URL: mysql://${MARIADB_USER:-queue}:${MARIADB_PASSWORD:-queuepassword}@db:3306/${MARIADB_DATABASE:-queue_service}
       AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET in .env}
+      AUTH_URL: ${AUTH_URL:-http://localhost:3000}
+      AUTH_OIDC_ISSUER: ${AUTH_OIDC_ISSUER:-}
+      AUTH_OIDC_CLIENT_ID: ${AUTH_OIDC_CLIENT_ID:-}
+      AUTH_OIDC_CLIENT_SECRET: ${AUTH_OIDC_CLIENT_SECRET:-}
+      SSO_ALLOWED_EMAIL_DOMAIN: ${SSO_ALLOWED_EMAIL_DOMAIN:-}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
       SIS_MOCK: ${SIS_MOCK:-true}
       SIS_API_URL: ${SIS_API_URL:-}

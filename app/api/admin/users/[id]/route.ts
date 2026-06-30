@@ -3,7 +3,17 @@ import bcrypt from "bcryptjs";
 import { apiError } from "@/lib/api-error";
 import { requireAuth } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
-import { userSchema } from "@/lib/validations";
+import { userActionSchema, userSchema } from "@/lib/validations";
+
+const userSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  status: true,
+  counterId: true,
+  createdAt: true,
+} as const;
 
 export async function PATCH(
   request: Request,
@@ -15,6 +25,46 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
+
+    if (body.action === "approve" || body.action === "reject") {
+      const action = userActionSchema.parse(body);
+      const existing = await prisma.user.findUnique({ where: { id } });
+
+      if (!existing) {
+        return NextResponse.json(
+          { error: { code: "NOT_FOUND", message: "ไม่พบผู้ใช้" } },
+          { status: 404 },
+        );
+      }
+
+      if (existing.status !== "PENDING") {
+        return NextResponse.json(
+          { error: { code: "VALIDATION_ERROR", message: "ผู้ใช้นี้ไม่ได้อยู่ในสถานะรออนุมัติ" } },
+          { status: 400 },
+        );
+      }
+
+      if (action.action === "reject") {
+        const user = await prisma.user.update({
+          where: { id },
+          data: { status: "REJECTED" },
+          select: userSelect,
+        });
+        return NextResponse.json({ user });
+      }
+
+      const user = await prisma.user.update({
+        where: { id },
+        data: {
+          status: "ACTIVE",
+          role: action.role,
+          counterId: action.counterId ?? null,
+        },
+        select: userSelect,
+      });
+      return NextResponse.json({ user });
+    }
+
     const data = userSchema.partial().parse(body);
 
     const updateData: {
@@ -37,13 +87,7 @@ export async function PATCH(
     const user = await prisma.user.update({
       where: { id },
       data: updateData,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        counterId: true,
-      },
+      select: userSelect,
     });
     return NextResponse.json({ user });
   } catch (error) {

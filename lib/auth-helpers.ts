@@ -12,6 +12,15 @@ export async function requireAuth(roles?: Array<"ADMIN" | "STAFF">) {
     };
   }
 
+  if (session.user.status !== "ACTIVE") {
+    return {
+      error: NextResponse.json(
+        { error: { code: "FORBIDDEN", message: "บัญชีของคุณยังไม่ได้รับการอนุมัติ" } },
+        { status: 403 },
+      ),
+    };
+  }
+
   if (roles && !roles.includes(session.user.role)) {
     return {
       error: NextResponse.json(

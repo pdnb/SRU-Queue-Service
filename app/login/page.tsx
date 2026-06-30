@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { LoginForm } from "./login-form";
+import { isSsoConfigured } from "@/lib/sso-user";
 
 function LoginSkeleton() {
   return (
@@ -15,7 +16,7 @@ function LoginSkeleton() {
 export default function LoginPage() {
   return (
     <Suspense fallback={<LoginSkeleton />}>
-      <LoginForm />
+      <LoginForm ssoEnabled={isSsoConfigured()} />
     </Suspense>
   );
 }

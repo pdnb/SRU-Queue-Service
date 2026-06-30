@@ -28,10 +28,15 @@ interface User {
   name: string;
   email: string;
   role: "ADMIN" | "STAFF";
+  status: "PENDING" | "ACTIVE" | "REJECTED" | "DISABLED";
   counterId: string | null;
+  createdAt: string;
 }
 
+type Tab = "active" | "pending";
+
 export default function AdminUsersPage() {
+  const [tab, setTab] = useState<Tab>("active");
   const [users, setUsers] = useState<User[]>([]);
   const [counters, setCounters] = useState<Counter[]>([]);
   const [name, setName] = useState("");
@@ -39,10 +44,14 @@ export default function AdminUsersPage() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"ADMIN" | "STAFF">("STAFF");
   const [counterId, setCounterId] = useState("");
+  const [approvingUser, setApprovingUser] = useState<User | null>(null);
+  const [approveRole, setApproveRole] = useState<"ADMIN" | "STAFF">("STAFF");
+  const [approveCounterId, setApproveCounterId] = useState("");
 
   const load = async () => {
+    const status = tab === "pending" ? "PENDING" : "ACTIVE";
     const [userRes, counterRes] = await Promise.all([
-      fetch("/api/admin/users"),
+      fetch(`/api/admin/users?status=${status}`),
       fetch("/api/admin/counters"),
     ]);
     const userData = await userRes.json();
@@ -53,7 +62,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [tab]);
 
   const createUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,6 +83,40 @@ export default function AdminUsersPage() {
     setCounterId("");
     await load();
   };
+
+  const rejectUser = async (userId: string) => {
+    await fetch(`/api/admin/users/${userId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "reject" }),
+    });
+    await load();
+  };
+
+  const approveUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!approvingUser) return;
+
+    await fetch(`/api/admin/users/${approvingUser.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "approve",
+        role: approveRole,
+        counterId: approveCounterId || null,
+      }),
+    });
+    setApprovingUser(null);
+    setApproveRole("STAFF");
+    setApproveCounterId("");
+    await load();
+  };
+
+  const formatDate = (value: string) =>
+    new Date(value).toLocaleString("th-TH", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
 
   return (
     <div className="space-y-6">
@@ -141,32 +184,144 @@ export default function AdminUsersPage() {
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between gap-4">
           <CardTitle>รายการเจ้าหน้าที่</CardTitle>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant={tab === "active" ? "default" : "outline"}
+              onClick={() => setTab("active")}
+            >
+              ใช้งานอยู่
+            </Button>
+            <Button
+              type="button"
+              variant={tab === "pending" ? "default" : "outline"}
+              onClick={() => setTab("pending")}
+            >
+              รออนุมัติ
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ชื่อ</TableHead>
-                <TableHead>อีเมล</TableHead>
-                <TableHead>บทบาท</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <RoleBadge role={user.role} />
-                  </TableCell>
+          {tab === "active" ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ชื่อ</TableHead>
+                  <TableHead>อีเมล</TableHead>
+                  <TableHead>บทบาท</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <RoleBadge role={user.role} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ชื่อ</TableHead>
+                  <TableHead>อีเมล</TableHead>
+                  <TableHead>วันที่ขอเข้าใช้</TableHead>
+                  <TableHead className="text-right">การดำเนินการ</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                      ไม่มีคำขอรออนุมัติ
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{formatDate(user.createdAt)}</TableCell>
+                      <TableCell className="space-x-2 text-right">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => {
+                            setApprovingUser(user);
+                            setApproveRole("STAFF");
+                            setApproveCounterId("");
+                          }}
+                        >
+                          อนุมัติ
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => rejectUser(user.id)}
+                        >
+                          ปฏิเสธ
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
+
+      {approvingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>อนุมัติ {approvingUser.name}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form className="space-y-4" onSubmit={approveUser}>
+                <p className="text-sm text-muted-foreground">{approvingUser.email}</p>
+                <div className="space-y-2">
+                  <Label>บทบาท</Label>
+                  <Select
+                    value={approveRole}
+                    onChange={(e) => setApproveRole(e.target.value as "ADMIN" | "STAFF")}
+                  >
+                    <option value="STAFF">STAFF</option>
+                    <option value="ADMIN">ADMIN</option>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>เคาน์เตอร์ประจำ (ถ้ามี)</Label>
+                  <Select
+                    value={approveCounterId}
+                    onChange={(e) => setApproveCounterId(e.target.value)}
+                  >
+                    <option value="">ไม่ระบุ</option>
+                    {counters.map((counter) => (
+                      <option key={counter.id} value={counter.id}>
+                        {counter.name} ({counter.service.name})
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+                <div className="flex gap-2">
+                  <Button type="submit">ยืนยันอนุมัติ</Button>
+                  <Button type="button" variant="outline" onClick={() => setApprovingUser(null)}>
+                    ยกเลิก
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

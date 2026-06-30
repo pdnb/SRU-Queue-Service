@@ -17,10 +17,14 @@ import { useQueueUpdates } from "@/hooks/use-queue-updates";
 import { TicketStatus } from "@/app/generated/prisma/enums";
 import { cn } from "@/lib/utils";
 
-interface Counter {
+interface CounterBase {
   id: string;
   name: string;
   service: { id: string; name: string };
+}
+
+interface Counter extends CounterBase {
+  staff: { id: string; name: string } | null;
 }
 
 interface Ticket {
@@ -33,7 +37,7 @@ interface Ticket {
 }
 
 interface StaffContext {
-  counter: Counter;
+  counter: CounterBase;
   currentTicket: Ticket | null;
   waitingTickets: Ticket[];
 }
@@ -73,10 +77,20 @@ export default function StaffPage() {
   }, [session, selectedCounterId]);
 
   useEffect(() => {
-    loadContext();
-  }, [loadContext]);
+    if (!selectedCounterId) {
+      setContext(null);
+      return;
+    }
+    void loadContext();
+  }, [selectedCounterId, loadContext]);
 
   useQueueUpdates(loadContext);
+
+  const handleCounterChange = (counterId: string) => {
+    setSelectedCounterId(counterId);
+    setContext(null);
+    setMessage(null);
+  };
 
   const assignCounter = async () => {
     if (!selectedCounterId) return;
@@ -107,6 +121,8 @@ export default function StaffPage() {
       setLoading(false);
     }
   };
+
+  const selectedCounter = counters.find((c) => c.id === selectedCounterId);
 
   const updateStatus = async (status: "SERVING" | "COMPLETED" | "SKIPPED" | "NO_SHOW") => {
     if (!context?.currentTicket) return;
@@ -148,7 +164,7 @@ export default function StaffPage() {
               <Select
                 id="counter"
                 value={selectedCounterId}
-                onChange={(e) => setSelectedCounterId(e.target.value)}
+                onChange={(e) => handleCounterChange(e.target.value)}
               >
                 <option value="">-- เลือกเคาน์เตอร์ --</option>
                 {counters.map((counter) => (
@@ -158,6 +174,27 @@ export default function StaffPage() {
                 ))}
               </Select>
             </div>
+            {selectedCounterId && selectedCounter && (
+              <div className="space-y-2">
+                <Label>เจ้าหน้าที่ประจำเคาน์เตอร์</Label>
+                {!selectedCounter.staff ? (
+                  <p className="text-sm text-muted-foreground">
+                    ยังไม่มีเจ้าหน้าที่ประจำ
+                  </p>
+                ) : selectedCounter.staff.id === session?.user?.id ? (
+                  <p className="text-sm">
+                    เจ้าหน้าที่ประจำ: {selectedCounter.staff.name}
+                  </p>
+                ) : (
+                  <div
+                    role="alert"
+                    className="rounded-lg border border-warning/30 bg-warning/15 px-2.5 py-2 text-sm text-warning-foreground"
+                  >
+                    เคาน์เตอร์นี้มีเจ้าหน้าที่อื่นประจำอยู่: {selectedCounter.staff.name}
+                  </div>
+                )}
+              </div>
+            )}
             <Button
               className="h-10 w-full cursor-pointer"
               variant="outline"

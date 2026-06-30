@@ -12,6 +12,13 @@ enum Role {
   STAFF
 }
 
+enum UserStatus {
+  PENDING
+  ACTIVE
+  REJECTED
+  DISABLED
+}
+
 enum TicketStatus {
   WAITING
   CALLED
@@ -22,15 +29,28 @@ enum TicketStatus {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   name      String
-  email     String   @unique
-  password  String
+  email     String     @unique
+  password  String?
+  status    UserStatus @default(ACTIVE)
   role      Role
-  counterId String?  @unique
-  counter   Counter? @relation(fields: [counterId], references: [id], onDelete: SetNull)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  counterId String?    @unique
+  counter   Counter?   @relation(fields: [counterId], references: [id], onDelete: SetNull)
+  accounts  Account[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Account {
+  id                String @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }
 
 model Service {

@@ -47,3 +47,18 @@ export const userSchema = z.object({
   role: z.enum(["ADMIN", "STAFF"]),
   counterId: z.string().nullable().optional(),
 });
+
+export const approveUserSchema = z.object({
+  action: z.literal("approve"),
+  role: z.enum(["ADMIN", "STAFF"]),
+  counterId: z.string().nullable().optional(),
+});
+
+export const rejectUserSchema = z.object({
+  action: z.literal("reject"),
+});
+
+export const userActionSchema = z.discriminatedUnion("action", [
+  approveUserSchema,
+  rejectUserSchema,
+]);

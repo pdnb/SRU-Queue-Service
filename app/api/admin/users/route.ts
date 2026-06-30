@@ -5,21 +5,29 @@ import { requireAuth } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { userSchema } from "@/lib/validations";
 
-export async function GET() {
+const userSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  status: true,
+  counterId: true,
+  createdAt: true,
+  counter: { select: { id: true, name: true, service: { select: { name: true } } } },
+} as const;
+
+export async function GET(request: Request) {
   try {
     const authResult = await requireAuth(["ADMIN"]);
     if (authResult.error) return authResult.error;
 
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get("status");
+
     const users = await prisma.user.findMany({
+      where: status ? { status: status as "PENDING" | "ACTIVE" | "REJECTED" | "DISABLED" } : undefined,
       orderBy: { name: "asc" },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        counterId: true,
-        counter: { select: { id: true, name: true, service: { select: { name: true } } } },
-      },
+      select: userSelect,
     });
     return NextResponse.json({ users });
   } catch (error) {
@@ -47,16 +55,11 @@ export async function POST(request: Request) {
         name: data.name,
         email: data.email,
         password,
+        status: "ACTIVE",
         role: data.role,
         counterId: data.counterId ?? null,
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        counterId: true,
-      },
+      select: userSelect,
     });
     return NextResponse.json({ user }, { status: 201 });
   } catch (error) {

@@ -6,6 +6,7 @@ const prisma = createPrismaClient();
 
 async function main() {
   await prisma.queueTicket.deleteMany();
+  await prisma.account.deleteMany();
   await prisma.user.deleteMany();
   await prisma.counter.deleteMany();
   await prisma.service.deleteMany();
@@ -53,6 +54,7 @@ async function main() {
       name: "ผู้ดูแลระบบ",
       email: "admin@example.com",
       password: passwordHash,
+      status: "ACTIVE",
       role: "ADMIN",
     },
   });
@@ -62,6 +64,7 @@ async function main() {
       name: "เจ้าหน้าที่ทะเบียน",
       email: "staff1@example.com",
       password: passwordHash,
+      status: "ACTIVE",
       role: "STAFF",
       counterId: counterA1.id,
     },
@@ -72,6 +75,7 @@ async function main() {
       name: "เจ้าหน้าที่การเงิน",
       email: "staff2@example.com",
       password: passwordHash,
+      status: "ACTIVE",
       role: "STAFF",
       counterId: counterB1.id,
     },
