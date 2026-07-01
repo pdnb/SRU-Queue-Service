@@ -6,6 +6,9 @@ export interface TicketStatusData {
   studentName: string;
   status: TicketStatus;
   waitingAhead: number;
+  rating: number | null;
+  ratedAt: string | null;
+  canRate: boolean;
   service: { id: string; name: string };
   counter: { id: string; name: string } | null;
 }

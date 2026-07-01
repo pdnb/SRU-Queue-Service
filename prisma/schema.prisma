@@ -93,6 +93,8 @@ model QueueTicket {
   createdAt   DateTime     @default(now())
   calledAt    DateTime?
   completedAt DateTime?
+  rating      Int?
+  ratedAt     DateTime?
 
   @@index([studentId, serviceId, queueDate])
   @@index([serviceId, queueDate, status])

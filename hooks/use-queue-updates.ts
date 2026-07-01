@@ -1,11 +1,32 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import { createPusherClient, QUEUE_CHANNEL } from "@/lib/pusher";
+import {
+  createPusherClient,
+  QUEUE_CHANNEL,
+  type QueueEventPayload,
+} from "@/lib/pusher";
 
-export function useQueueUpdates(onUpdate: () => void, pollIntervalMs = 5000) {
+type UseQueueUpdatesOptions = {
+  pollIntervalMs?: number;
+  onEvent?: (payload: QueueEventPayload) => void;
+};
+
+export function useQueueUpdates(
+  onUpdate: () => void,
+  options?: number | UseQueueUpdatesOptions,
+) {
+  const opts: UseQueueUpdatesOptions =
+    typeof options === "number" ? { pollIntervalMs: options } : (options ?? {});
+  const pollIntervalMs = opts.pollIntervalMs ?? 5000;
+
   const onUpdateRef = useRef(onUpdate);
-  onUpdateRef.current = onUpdate;
+  const onEventRef = useRef(opts.onEvent);
+
+  useEffect(() => {
+    onUpdateRef.current = onUpdate;
+    onEventRef.current = opts.onEvent;
+  });
 
   const refresh = useCallback(() => {
     onUpdateRef.current();
@@ -17,7 +38,10 @@ export function useQueueUpdates(onUpdate: () => void, pollIntervalMs = 5000) {
 
     if (pusher) {
       const channel = pusher.subscribe(QUEUE_CHANNEL);
-      channel.bind("update", refresh);
+      channel.bind("update", (payload: QueueEventPayload) => {
+        onEventRef.current?.(payload);
+        refresh();
+      });
     } else {
       pollTimer = setInterval(refresh, pollIntervalMs);
     }
@@ -29,7 +53,7 @@ export function useQueueUpdates(onUpdate: () => void, pollIntervalMs = 5000) {
         pusher.disconnect();
       }
     };
-  }, [refresh, pollIntervalMs]);
+  }, [pollIntervalMs, refresh]);
 
   return { refresh };
 }

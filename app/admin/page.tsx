@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, Clock, ListOrdered, Timer, Users } from "lucide-react";
+import { CheckCircle2, Clock, ListOrdered, Star, Timer, Users } from "lucide-react";
 import { ButtonLink } from "@/components/button-link";
 import { StatCard } from "@/components/stat-card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,9 @@ interface Stats {
   completed: number;
   skipped: number;
   avgWaitMinutes: number;
+  avgRating: number;
+  ratingCount: number;
+  responseRate: number;
   byService: Array<{ serviceName: string; count: number }>;
 }
 
@@ -32,7 +35,7 @@ export default function AdminDashboardPage() {
   }, []);
 
   const resetQueue = async () => {
-    if (!confirm("ยืนยันรีเซ็ตคิววันนี้ทั้งหมด?")) return;
+    if (!confirm("ยืนยันรีเซ็ตคิวที่ยังไม่เสร็จวันนี้? (คิวที่เสร็จแล้วจะยังอยู่ในรายงาน)")) return;
     await fetch("/api/admin/stats", { method: "DELETE" });
     await loadStats();
   };
@@ -49,7 +52,7 @@ export default function AdminDashboardPage() {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <StatCard title="คิวทั้งหมด" value={stats?.total ?? 0} icon={ListOrdered} tone="brand" />
         <StatCard title="รออยู่" value={stats?.waiting ?? 0} icon={Users} tone="warning" />
         <StatCard title="เสร็จสิ้น" value={stats?.completed ?? 0} icon={CheckCircle2} tone="success" />
@@ -58,6 +61,18 @@ export default function AdminDashboardPage() {
           value={stats?.avgWaitMinutes ?? 0}
           icon={Timer}
           tone="cta"
+        />
+        <StatCard
+          title="คะแนนเฉลี่ยวันนี้"
+          value={stats?.avgRating ?? 0}
+          icon={Star}
+          tone="warning"
+        />
+        <StatCard
+          title="อัตราตอบกลับ (%)"
+          value={stats?.responseRate ?? 0}
+          icon={Star}
+          tone="muted"
         />
       </div>
 

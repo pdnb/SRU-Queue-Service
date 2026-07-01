@@ -2,6 +2,14 @@ import { TicketStatus } from "@/app/generated/prisma/enums";
 import { formatDisplayNo, getQueueDate, isSameQueueDate } from "@/lib/date";
 import { prisma } from "@/lib/prisma";
 import { broadcastQueueUpdate } from "@/lib/pusher";
+import {
+  MAX_RATING,
+  MIN_RATING,
+  canSubmitRating,
+  computeAvgRating,
+  computeResponseRate,
+  isWithinRatingWindow,
+} from "@/lib/rating";
 import { sisClient } from "@/lib/sis-client";
 
 const ACTIVE_STATUSES: TicketStatus[] = [TicketStatus.WAITING, TicketStatus.CALLED];
@@ -124,11 +132,17 @@ export async function getTicketStatus(ticketId: string) {
     throw new QueueError("ไม่พบคิว", "TICKET_NOT_FOUND", 404);
   }
 
-  if (!isSameQueueDate(ticket.queueDate, new Date())) {
+  const isTrackable = isSameQueueDate(ticket.queueDate, new Date());
+  const inRatingWindow = isWithinRatingWindow(ticket);
+
+  if (!isTrackable && !inRatingWindow) {
     throw new QueueError("คิวนี้หมดอายุแล้ว", "TICKET_EXPIRED", 410);
   }
 
-  const waitingAhead = await countWaitingAhead(ticket);
+  const waitingAhead =
+    isTrackable && ticket.status === TicketStatus.WAITING
+      ? await countWaitingAhead(ticket)
+      : 0;
 
   return {
     id: ticket.id,
@@ -136,6 +150,9 @@ export async function getTicketStatus(ticketId: string) {
     studentName: ticket.studentName,
     status: ticket.status,
     waitingAhead,
+    rating: ticket.rating,
+    ratedAt: ticket.ratedAt?.toISOString() ?? null,
+    canRate: canSubmitRating(ticket),
     service: {
       id: ticket.service.id,
       name: ticket.service.name,
@@ -143,6 +160,48 @@ export async function getTicketStatus(ticketId: string) {
     counter: ticket.counter
       ? { id: ticket.counter.id, name: ticket.counter.name }
       : null,
+  };
+}
+
+export async function submitTicketRating(ticketId: string, rating: number) {
+  if (rating < MIN_RATING || rating > MAX_RATING) {
+    throw new QueueError("คะแนนต้องอยู่ระหว่าง 1-5", "INVALID_RATING", 400);
+  }
+
+  const ticket = await prisma.queueTicket.findUnique({
+    where: { id: ticketId },
+    include: ticketInclude,
+  });
+
+  if (!ticket) {
+    throw new QueueError("ไม่พบคิว", "TICKET_NOT_FOUND", 404);
+  }
+
+  if (ticket.status !== TicketStatus.COMPLETED) {
+    throw new QueueError("ให้คะแนนได้เฉพาะคิวที่ให้บริการเสร็จแล้ว", "TICKET_NOT_COMPLETED", 400);
+  }
+
+  if (ticket.rating !== null) {
+    throw new QueueError("ให้คะแนนไปแล้ว", "ALREADY_RATED", 409);
+  }
+
+  if (!canSubmitRating(ticket)) {
+    throw new QueueError("หมดเวลาให้คะแนนแล้ว", "RATING_EXPIRED", 410);
+  }
+
+  const updated = await prisma.queueTicket.update({
+    where: { id: ticketId },
+    data: {
+      rating,
+      ratedAt: new Date(),
+    },
+    include: ticketInclude,
+  });
+
+  return {
+    id: updated.id,
+    rating: updated.rating,
+    ratedAt: updated.ratedAt?.toISOString() ?? null,
   };
 }
 
@@ -372,6 +431,7 @@ export async function getTodayStats() {
   const skipped = tickets.filter(
     (t) => t.status === TicketStatus.SKIPPED || t.status === TicketStatus.NO_SHOW,
   );
+  const ratedTickets = completed.filter((t) => t.rating !== null);
 
   const waitTimes = completed
     .filter((t) => t.calledAt)
@@ -391,6 +451,9 @@ export async function getTodayStats() {
     completed: completed.length,
     skipped: skipped.length,
     avgWaitMinutes: Math.round(avgWaitMs / 60000),
+    avgRating: computeAvgRating(ratedTickets.map((t) => t.rating)),
+    ratingCount: ratedTickets.length,
+    responseRate: computeResponseRate(ratedTickets.length, completed.length),
     byService: Object.values(
       tickets.reduce<
         Record<string, { serviceName: string; count: number }>
@@ -410,6 +473,13 @@ export async function getTodayStats() {
 
 export async function resetTodayQueue() {
   const queueDate = getQueueDate();
-  await prisma.queueTicket.deleteMany({ where: { queueDate } });
+  await prisma.queueTicket.deleteMany({
+    where: {
+      queueDate,
+      status: {
+        in: [TicketStatus.WAITING, TicketStatus.CALLED, TicketStatus.SERVING],
+      },
+    },
+  });
   await broadcastQueueUpdate({ type: "queue_reset" });
 }

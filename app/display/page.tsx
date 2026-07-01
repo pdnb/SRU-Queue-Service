@@ -2,6 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AppHeader } from "@/components/app-header";
+import { SoundEnableOverlay } from "@/components/sound-enable-overlay";
+import { SoundMuteToggle } from "@/components/sound-mute-toggle";
+import { useDisplayAnnouncements } from "@/hooks/use-display-announcements";
+import { useQueueSound } from "@/hooks/use-queue-sound";
 import { useQueueUpdates } from "@/hooks/use-queue-updates";
 import { APP_NAME } from "@/lib/branding";
 import { cn } from "@/lib/utils";
@@ -11,7 +15,7 @@ interface QueueState {
     id: string;
     name: string;
     service: { name: string; prefix: string };
-    currentTicket: { displayNo: string } | null;
+    currentTicket: { id: string; displayNo: string } | null;
   }>;
   recentWaiting: Array<{
     id: string;
@@ -23,13 +27,17 @@ interface QueueState {
 export default function DisplayPage() {
   const [state, setState] = useState<QueueState | null>(null);
   const [time, setTime] = useState("");
+  const { ready, enabled, muted, canAnnounce, enableSound, toggleMuted } =
+    useQueueSound();
+  const { onQueueEvent, onStateLoaded } = useDisplayAnnouncements(canAnnounce);
 
   const loadState = useCallback(async () => {
     const response = await fetch("/api/queue/state");
     if (!response.ok) return;
-    const data = await response.json();
+    const data: QueueState = await response.json();
     setState(data);
-  }, []);
+    onStateLoaded(data.counters);
+  }, [onStateLoaded]);
 
   useEffect(() => {
     loadState();
@@ -41,7 +49,7 @@ export default function DisplayPage() {
         new Date().toLocaleTimeString("th-TH", {
           hour: "2-digit",
           minute: "2-digit",
-        })
+        }),
       );
     };
     update();
@@ -49,10 +57,15 @@ export default function DisplayPage() {
     return () => clearInterval(id);
   }, []);
 
-  useQueueUpdates(loadState);
+  useQueueUpdates(loadState, { onEvent: onQueueEvent });
 
   return (
     <div className="display-surface">
+      {ready && !enabled && <SoundEnableOverlay onEnable={enableSound} />}
+      {ready && enabled && (
+        <SoundMuteToggle muted={muted} onToggle={toggleMuted} />
+      )}
+
       <AppHeader
         title={APP_NAME}
         subtitle="กรุณารอฟังเรียกเลขคิวของท่าน"
@@ -84,7 +97,7 @@ export default function DisplayPage() {
                 key={counter.id}
                 className={cn(
                   "display-card text-center",
-                  counter.currentTicket && "display-card-active"
+                  counter.currentTicket && "display-card-active",
                 )}
               >
                 <p className="text-base text-white/70">
@@ -97,7 +110,7 @@ export default function DisplayPage() {
                     "mt-4",
                     counter.currentTicket
                       ? "display-calling-number text-7xl sm:text-8xl"
-                      : "text-7xl font-black tracking-tight text-white/20 tabular-nums sm:text-8xl"
+                      : "text-7xl font-black tracking-tight text-white/20 tabular-nums sm:text-8xl",
                   )}
                 >
                   {counter.currentTicket?.displayNo ?? "—"}

@@ -3,8 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
+import { SoundEnableOverlay } from "@/components/sound-enable-overlay";
 import { TicketStatusView } from "@/components/ticket/ticket-status-view";
+import { useQueueSound } from "@/hooks/use-queue-sound";
 import { useQueueUpdates } from "@/hooks/use-queue-updates";
+import { useTicketAnnouncement } from "@/hooks/use-ticket-announcement";
 import { APP_NAME } from "@/lib/branding";
 import type { TicketStatusData } from "@/lib/ticket-status";
 
@@ -27,6 +30,9 @@ function StatusMessage({ title, description }: { title: string; description: str
 export default function TicketPage() {
   const params = useParams<{ id: string }>();
   const [state, setState] = useState<PageState>({ kind: "loading" });
+  const { ready, enabled, enableSound } = useQueueSound();
+  const ticket = state.kind === "ready" ? state.ticket : null;
+  const { replay } = useTicketAnnouncement(ticket, enabled);
 
   const loadTicket = useCallback(async () => {
     const response = await fetch(`/api/tickets/${params.id}`);
@@ -58,6 +64,8 @@ export default function TicketPage() {
 
   return (
     <div className="page-surface min-h-screen">
+      {ready && !enabled && <SoundEnableOverlay onEnable={enableSound} />}
+
       <AppHeader
         title="ติดตามคิว"
         subtitle={APP_NAME}
@@ -72,7 +80,13 @@ export default function TicketPage() {
             <div className="h-6 w-2/3 mx-auto animate-pulse rounded bg-muted" />
           </div>
         )}
-        {state.kind === "ready" && <TicketStatusView ticket={state.ticket} />}
+        {state.kind === "ready" && (
+          <TicketStatusView
+            ticket={state.ticket}
+            soundEnabled={enabled}
+            onReplayAnnouncement={replay}
+          />
+        )}
         {state.kind === "expired" && (
           <StatusMessage title="คิวหมดอายุแล้ว" description="คิวนี้ไม่สามารถติดตามได้อีกต่อไป" />
         )}

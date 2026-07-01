@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Building2, LayoutGrid, Users } from "lucide-react";
+import { BarChart3, Building2, FileBarChart, LayoutGrid, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/admin", label: "ภาพรวม", icon: BarChart3, exact: true },
+  { href: "/admin/reports", label: "รายงาน", icon: FileBarChart },
   { href: "/admin/services", label: "บริการ", icon: LayoutGrid },
   { href: "/admin/counters", label: "เคาน์เตอร์", icon: Building2 },
   { href: "/admin/users", label: "เจ้าหน้าที่", icon: Users },

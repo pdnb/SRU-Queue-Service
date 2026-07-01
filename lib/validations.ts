@@ -18,6 +18,10 @@ export const updateTicketSchema = z.object({
   status: z.enum(["SERVING", "COMPLETED", "SKIPPED", "NO_SHOW"]),
 });
 
+export const submitRatingSchema = z.object({
+  rating: z.coerce.number().int().min(1).max(5),
+});
+
 export const loginSchema = z.object({
   email: z.string().email("อีเมลไม่ถูกต้อง"),
   password: z.string().min(1, "กรุณากรอกรหัสผ่าน"),
