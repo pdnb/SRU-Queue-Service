@@ -48,6 +48,7 @@ export default function StaffPage() {
   const [selectedCounterId, setSelectedCounterId] = useState<string>("");
   const [context, setContext] = useState<StaffContext | null>(null);
   const [loading, setLoading] = useState(false);
+  const [assigning, setAssigning] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   const loadCounters = useCallback(async () => {
@@ -94,12 +95,27 @@ export default function StaffPage() {
 
   const assignCounter = async () => {
     if (!selectedCounterId) return;
-    await fetch("/api/staff/context", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ counterId: selectedCounterId }),
-    });
-    setMessage("ตั้งค่าเคาน์เตอร์เรียบร้อยแล้ว");
+    setAssigning(true);
+    setMessage(null);
+    try {
+      const alreadyAssigned = selectedCounter?.staff?.id === session?.user?.id;
+      if (!alreadyAssigned) {
+        const response = await fetch("/api/staff/context", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ counterId: selectedCounterId }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          setMessage(data.error?.message ?? "ไม่สามารถตั้งค่าเคาน์เตอร์ได้");
+          return;
+        }
+      }
+      await Promise.all([loadCounters(), loadContext()]);
+      setMessage("ตั้งค่าเคาน์เตอร์เรียบร้อยแล้ว");
+    } finally {
+      setAssigning(false);
+    }
   };
 
   const callNext = async () => {
@@ -123,6 +139,9 @@ export default function StaffPage() {
   };
 
   const selectedCounter = counters.find((c) => c.id === selectedCounterId);
+  const isCounterOwnedByOther =
+    !!selectedCounter?.staff &&
+    selectedCounter.staff.id !== session?.user?.id;
 
   const updateStatus = async (status: "SERVING" | "COMPLETED" | "SKIPPED" | "NO_SHOW") => {
     if (!context?.currentTicket) return;
@@ -199,8 +218,9 @@ export default function StaffPage() {
               className="h-10 w-full cursor-pointer"
               variant="outline"
               onClick={assignCounter}
+              disabled={!selectedCounterId || assigning || isCounterOwnedByOther}
             >
-              ยืนยันเคาน์เตอร์
+              {assigning ? "กำลังบันทึก..." : "ยืนยันเคาน์เตอร์"}
             </Button>
             {message && (
               <p role="status" className="text-sm text-muted-foreground">

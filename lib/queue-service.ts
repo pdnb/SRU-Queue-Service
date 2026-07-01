@@ -25,7 +25,7 @@ const ticketInclude = {
 export async function getActiveServices() {
   return prisma.service.findMany({
     where: { isActive: true },
-    orderBy: { name: "asc" },
+    orderBy: { prefix: "asc" },
   });
 }
 

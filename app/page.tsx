@@ -7,8 +7,12 @@ export default function HomePage() {
     <div className="page-surface">
       <header className="border-b bg-brand text-brand-foreground">
         <div className="mx-auto max-w-5xl px-4 py-12 text-center sm:py-16">
-          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-            {APP_NAME}
+          <h1 className="mx-auto inline-flex rounded-xl bg-white px-4 py-0">
+            <img
+              src="/q-flow-logo.png"
+              alt={APP_NAME}
+              className="h-32 w-auto"
+            />
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base text-white/80 sm:text-lg">
             {APP_TAGLINE} — เลือกหน้าจอที่ต้องการใช้งาน
