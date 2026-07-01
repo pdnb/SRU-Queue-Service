@@ -17,7 +17,7 @@ export function SoundMuteToggle({ muted, onToggle, className }: SoundMuteToggleP
       variant="ghost"
       size="icon-lg"
       className={cn(
-        "fixed top-4 right-4 z-40 cursor-pointer border border-white/10 bg-black/30 text-white hover:bg-black/50 hover:text-white",
+        "fixed right-4 bottom-4 z-40 cursor-pointer border border-white/10 bg-black/30 text-white hover:bg-black/50 hover:text-white",
         className,
       )}
       onClick={onToggle}
