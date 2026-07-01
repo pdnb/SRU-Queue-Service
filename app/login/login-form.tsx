@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
+import { ButtonLink } from "@/components/button-link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,7 +33,6 @@ export function LoginForm({ ssoEnabled }: LoginFormProps) {
     queryError ? (ERROR_MESSAGES[queryError] ?? "ไม่สามารถเข้าสู่ระบบได้") : null,
   );
   const [loading, setLoading] = useState(false);
-  const [ssoLoading, setSsoLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,11 +56,7 @@ export function LoginForm({ ssoEnabled }: LoginFormProps) {
     router.refresh();
   };
 
-  const handleSsoSignIn = async () => {
-    setSsoLoading(true);
-    setError(null);
-    await signIn("oidc", { callbackUrl });
-  };
+  const ssoLoginHref = `/auth/login?returnTo=${encodeURIComponent(callbackUrl)}`;
 
   return (
     <div className="page-surface flex min-h-screen flex-col">
@@ -79,15 +75,13 @@ export function LoginForm({ ssoEnabled }: LoginFormProps) {
           <CardContent className="space-y-4">
             {ssoEnabled && (
               <>
-                <Button
-                  type="button"
+                <ButtonLink
+                  href={ssoLoginHref}
                   variant="outline"
-                  className="h-10 w-full cursor-pointer"
-                  disabled={ssoLoading || loading}
-                  onClick={handleSsoSignIn}
+                  className="h-10 w-full"
                 >
-                  {ssoLoading ? "กำลังเปลี่ยนเส้นทาง..." : "เข้าสู่ระบบด้วยบัญชีมหาวิทยาลัย"}
-                </Button>
+                  เข้าสู่ระบบด้วยบัญชีมหาวิทยาลัย
+                </ButtonLink>
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t" />
@@ -123,7 +117,7 @@ export function LoginForm({ ssoEnabled }: LoginFormProps) {
                 />
               </div>
               {error && <p role="alert" className="alert-error">{error}</p>}
-              <Button type="submit" variant="cta" className="h-10 w-full cursor-pointer" disabled={loading || ssoLoading}>
+              <Button type="submit" variant="cta" className="h-10 w-full cursor-pointer" disabled={loading}>
                 {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
               </Button>
             </form>

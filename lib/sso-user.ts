@@ -1,7 +1,9 @@
 import type { User } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 
-export const OIDC_PROVIDER_ID = "oidc";
+export const AUTH0_PROVIDER_ID = "auth0";
+const LEGACY_OIDC_PROVIDER_ID = "oidc";
+const SSO_PROVIDER_IDS = [AUTH0_PROVIDER_ID, LEGACY_OIDC_PROVIDER_ID] as const;
 
 export type SsoUserResult =
   | { ok: true; user: User }
@@ -9,9 +11,9 @@ export type SsoUserResult =
 
 export function isSsoConfigured(): boolean {
   return Boolean(
-    process.env.AUTH_OIDC_ISSUER &&
-      process.env.AUTH_OIDC_CLIENT_ID &&
-      process.env.AUTH_OIDC_CLIENT_SECRET,
+    process.env.AUTH0_DOMAIN &&
+      process.env.AUTH0_CLIENT_ID &&
+      process.env.AUTH0_CLIENT_SECRET,
   );
 }
 
@@ -26,18 +28,38 @@ export function isEmailDomainAllowed(email: string): boolean {
   return domain === allowedDomain;
 }
 
+async function findLinkedAccount(providerAccountId: string) {
+  for (const provider of SSO_PROVIDER_IDS) {
+    const account = await prisma.account.findUnique({
+      where: {
+        provider_providerAccountId: {
+          provider,
+          providerAccountId,
+        },
+      },
+      include: { user: true },
+    });
+
+    if (account) {
+      return account;
+    }
+  }
+
+  return null;
+}
+
 async function linkAccount(userId: string, providerAccountId: string) {
   await prisma.account.upsert({
     where: {
       provider_providerAccountId: {
-        provider: OIDC_PROVIDER_ID,
+        provider: AUTH0_PROVIDER_ID,
         providerAccountId,
       },
     },
     create: {
       userId,
       type: "oidc",
-      provider: OIDC_PROVIDER_ID,
+      provider: AUTH0_PROVIDER_ID,
       providerAccountId,
     },
     update: { userId },
@@ -60,15 +82,7 @@ export async function resolveSsoUser(input: {
     return { ok: false, reason: "domain_denied" };
   }
 
-  const existingAccount = await prisma.account.findUnique({
-    where: {
-      provider_providerAccountId: {
-        provider: OIDC_PROVIDER_ID,
-        providerAccountId: input.providerAccountId,
-      },
-    },
-    include: { user: true },
-  });
+  const existingAccount = await findLinkedAccount(input.providerAccountId);
 
   if (existingAccount) {
     const user = existingAccount.user;
@@ -99,7 +113,7 @@ export async function resolveSsoUser(input: {
       accounts: {
         create: {
           type: "oidc",
-          provider: OIDC_PROVIDER_ID,
+          provider: AUTH0_PROVIDER_ID,
           providerAccountId: input.providerAccountId,
         },
       },

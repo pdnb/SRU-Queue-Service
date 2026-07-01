@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { signOut } from "next-auth/react";
-import { Home, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Home } from "lucide-react";
+import { LogoutButton } from "@/components/logout-button";
 import { ButtonLink } from "@/components/button-link";
 import { cn } from "@/lib/utils";
 
@@ -127,18 +126,14 @@ export function AppHeader({
             </ButtonLink>
           )}
           {showLogout && (
-            <Button
+            <LogoutButton
               variant={isBrand ? "secondary" : "outline"}
               className={
                 isBrand
-                  ? "cursor-pointer border-white/20 bg-white/10 text-white hover:bg-white/15"
-                  : "cursor-pointer"
+                  ? "border-white/20 bg-white/10 text-white hover:bg-white/15"
+                  : undefined
               }
-              onClick={() => signOut({ callbackUrl: "/login" })}
-            >
-              <LogOut className="size-4" aria-hidden />
-              <span className="hidden sm:inline">ออกจากระบบ</span>
-            </Button>
+            />
           )}
         </div>
       </div>

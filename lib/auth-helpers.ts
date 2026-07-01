@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getAppSession } from "@/lib/app-session";
 
 export async function requireAuth(roles?: Array<"ADMIN" | "STAFF">) {
-  const session = await auth();
+  const session = await getAppSession();
   if (!session?.user) {
     return {
       error: NextResponse.json(

@@ -17,6 +17,7 @@
     "postinstall": "node scripts/with-prisma.mjs generate"
   },
   "dependencies": {
+    "@auth0/nextjs-auth0": "^4.23.0",
     "@base-ui/react": "^1.6.0",
     "@prisma/adapter-better-sqlite3": "^7.8.0",
     "@prisma/adapter-mariadb": "^7.8.0",

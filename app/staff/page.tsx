@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { Megaphone } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { EmptyState } from "@/components/empty-state";
@@ -14,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { useQueueUpdates } from "@/hooks/use-queue-updates";
+import { useAppSession } from "@/hooks/use-app-session";
 import { TicketStatus } from "@/app/generated/prisma/enums";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +43,7 @@ interface StaffContext {
 }
 
 export default function StaffPage() {
-  const { data: session } = useSession();
+  const { data: session } = useAppSession();
   const [counters, setCounters] = useState<Counter[]>([]);
   const [selectedCounterId, setSelectedCounterId] = useState<string>("");
   const [context, setContext] = useState<StaffContext | null>(null);

@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
 import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getAppSession } from "@/lib/app-session";
 import { APP_NAME } from "@/lib/branding";
 import { SignOutButton } from "./sign-out-button";
 
 export default async function PendingApprovalPage() {
-  const session = await auth();
+  const session = await getAppSession();
 
   if (!session?.user) {
     redirect("/login");
